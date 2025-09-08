@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:bluetooth_classic/models/device.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const ECGApp());
@@ -1153,100 +1154,342 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildDeviceSection() {
-    return Card(
-      elevation: 2,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(
-                  connectedDevice != null
-                      ? Icons.bluetooth_connected
-                      : Icons.bluetooth_searching,
-                  color: connectedDevice != null ? Colors.green : Colors.orange,
-                  size: 24,
+            // Header with device connection status
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2c3385).withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF2c3385).withOpacity(0.1),
+                  width: 1,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        connectedDevice != null
-                            ? 'Connected: ${connectedDevice!.name ?? connectedDevice!.address}'
-                            : 'Searching for ECGREC-232401-177...',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      // Connection status icon
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: connectedDevice != null
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          connectedDevice != null
+                              ? Icons.bluetooth_connected_rounded
+                              : Icons.bluetooth_searching_rounded,
+                          color: connectedDevice != null
+                              ? Colors.green.shade600
+                              : Colors.orange.shade600,
+                          size: 24,
                         ),
                       ),
-                      Text(
-                        statusMessage,
-                        style: TextStyle(
-                          color: isAcquiring
-                              ? Colors.green
-                              : Colors.grey.shade600,
-                          fontSize: 14,
+                      const SizedBox(width: 16),
+
+                      // Device info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              connectedDevice != null
+                                  ? 'Connected Device'
+                                  : 'Searching for Device',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              connectedDevice != null
+                                  ? '${connectedDevice!.name ?? connectedDevice!.address}'
+                                  : 'ECGREC-232401-177...',
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: const Color(0xFF2c3385),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isAcquiring
+                                    ? Colors.green.withOpacity(0.1)
+                                    : Colors.grey.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                statusMessage,
+                                style: GoogleFonts.montserrat(
+                                  color: isAcquiring
+                                      ? Colors.green.shade700
+                                      : Colors.grey.shade600,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Device selection button
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF2c3385).withOpacity(0.2),
+                              spreadRadius: 0,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _showDeviceDialog,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2c3385),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.devices_rounded, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                connectedDevice != null
+                                    ? 'Change Device'
+                                    : 'Select Device',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _showDeviceDialog,
-                  icon: const Icon(Icons.devices),
-                  label: Text(
-                    connectedDevice != null ? 'Change Device' : 'Select Device',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade600,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+
+            // Device stats section (show when connected)
             if (lastECGData != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.battery_full, color: Colors.green, size: 16),
+                        Icon(
+                          Icons.analytics_rounded,
+                          color: const Color(0xFF2c3385),
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(
-                          lastECGData!.batteryStatus,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        const SizedBox(width: 20),
-                        Text(
-                          'Sample Rate: ${waveController.actualSampleRate.toStringAsFixed(1)} Hz',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.cable, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            lastECGData!.leadStatus,
-                            style: const TextStyle(fontSize: 12),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          'Device Statistics',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF2c3385),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Stats grid
+                    Row(
+                      children: [
+                        // Battery status
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.battery_full_rounded,
+                                      color: Colors.green.shade600,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Battery',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  lastECGData!.batteryStatus,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        // Sample rate
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.speed_rounded,
+                                      color: Colors.blue.shade600,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Sample Rate',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${waveController.actualSampleRate.toStringAsFixed(1)} Hz',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Lead status
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.cable_rounded,
+                            color: Colors.purple.shade600,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Lead Connection Status',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                lastECGData!.leadStatus,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.purple.shade700,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -1261,117 +1504,384 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
   Widget _buildControlPanel() {
     final isConnected = connectedDevice != null;
 
-    return Card(
-      elevation: 2,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            Row(
-              children: [
-                const Text(
-                  'Gain:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+            // Settings Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2c3385).withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF2c3385).withOpacity(0.1),
+                  width: 1,
                 ),
-                const SizedBox(width: 12),
-                DropdownButton<int>(
-                  value: currentGain,
-                  items: [1, 2, 3, 4, 6, 8, 12]
-                      .map(
-                        (g) => DropdownMenuItem(value: g, child: Text('${g}x')),
-                      )
-                      .toList(),
-                  onChanged: isAcquiring
-                      ? null
-                      : (v) {
-                          if (v != null) {
-                            setState(() => currentGain = v);
-                            waveController.setGain(v);
-                          }
-                        },
-                ),
-                const SizedBox(width: 24),
-                const Text(
-                  'Calibration:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Slider(
-                        value: calibration,
-                        min: 0.001,
-                        max: 0.01,
-                        divisions: 100,
-                        label:
-                            '${(calibration * 1000000).toStringAsFixed(1)}µV',
-                        onChanged: (v) {
-                          setState(() => calibration = v);
-                          waveController.setRawToMv(v);
-                        },
+                      Icon(
+                        Icons.settings,
+                        color: const Color(0xFF2c3385),
+                        size: 20,
                       ),
+                      const SizedBox(width: 8),
                       Text(
-                        '${(calibration * 1000000).toStringAsFixed(1)}µV/count',
+                        'ECG Settings',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2c3385),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      // Gain Section
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Gain Amplification',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  value: currentGain,
+                                  isExpanded: true,
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: const Color(0xFF2c3385),
+                                  ),
+                                  style: GoogleFonts.montserrat(
+                                    color: const Color(0xFF2c3385),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  items: [1, 2, 3, 4, 6, 8, 12]
+                                      .map(
+                                        (g) => DropdownMenuItem(
+                                          value: g,
+                                          child: Text('${g}x Gain'),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: isAcquiring
+                                      ? null
+                                      : (v) {
+                                          if (v != null) {
+                                            setState(() => currentGain = v);
+                                            waveController.setGain(v);
+                                          }
+                                        },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      // Calibration Section
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Signal Calibration',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Column(
+                                children: [
+                                  SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                      activeTrackColor: const Color(0xFF2c3385),
+                                      inactiveTrackColor: Colors.grey.shade300,
+                                      thumbColor: const Color(0xFF2c3385),
+                                      overlayColor: const Color(
+                                        0xFF2c3385,
+                                      ).withOpacity(0.2),
+                                      trackHeight: 4,
+                                      thumbShape: const RoundSliderThumbShape(
+                                        enabledThumbRadius: 8,
+                                      ),
+                                    ),
+                                    child: Slider(
+                                      value: calibration,
+                                      min: 0.001,
+                                      max: 0.01,
+                                      divisions: 100,
+                                      onChanged: (v) {
+                                        setState(() => calibration = v);
+                                        waveController.setRawToMv(v);
+                                      },
+                                    ),
+                                  ),
+                                  Text(
+                                    '${(calibration * 1000000).toStringAsFixed(1)}µV/count',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xFF2c3385),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: isConnected && !isAcquiring
-                      ? _startAcquisition
-                      : null,
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Start ECG'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+
+            const SizedBox(height: 20),
+
+            // Control Buttons Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.control_camera,
+                        color: const Color(0xFF2c3385),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Recording Controls',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2c3385),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: isAcquiring ? _stopAcquisition : null,
-                  icon: const Icon(Icons.stop),
-                  label: const Text('Stop'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                ),
-                ElevatedButton.icon(
-                  onPressed: isConnected ? _disconnect : null,
-                  icon: const Icon(Icons.bluetooth_disabled),
-                  label: const Text('Disconnect'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                  const SizedBox(height: 12),
+                  // Action Buttons Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionButton(
+                          onPressed: isConnected && !isAcquiring
+                              ? _startAcquisition
+                              : null,
+                          icon: Icons.play_arrow_rounded,
+                          label: 'Start ECG',
+                          color: Colors.green.shade600,
+                          isEnabled: isConnected && !isAcquiring,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildActionButton(
+                          onPressed: isAcquiring ? _stopAcquisition : null,
+                          icon: Icons.stop_rounded,
+                          label: 'Stop',
+                          color: Colors.red.shade600,
+                          isEnabled: isAcquiring,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildActionButton(
+                          onPressed: isConnected ? _disconnect : null,
+                          icon: Icons.bluetooth_disabled_rounded,
+                          label: 'Disconnect',
+                          color: Colors.orange.shade600,
+                          isEnabled: isConnected,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildActionButton(
+                          onPressed: waveController.clear,
+                          icon: Icons.clear_all_rounded,
+                          label: 'Clear',
+                          color: Colors.grey.shade600,
+                          isEnabled: true,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: waveController.clear,
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Clear'),
-                ),
-                Column(
-                  children: [
-                    Switch(
-                      value: useMock,
-                      onChanged: (v) {
-                        if (v) {
-                          _startMockData();
-                        } else {
-                          _mockTimer?.cancel();
-                          setState(() {
-                            useMock = false;
-                            statusMessage = 'Mock data stopped';
-                          });
-                        }
-                      },
+
+                  const SizedBox(height: 12),
+
+                  // Mock Data Toggle
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    const Text('Mock Data', style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-              ],
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.science_rounded,
+                          color: useMock
+                              ? const Color(0xFF2c3385)
+                              : Colors.grey.shade500,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Mock Data Generator',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: useMock
+                                      ? const Color(0xFF2c3385)
+                                      : Colors.grey.shade700,
+                                ),
+                              ),
+                              Text(
+                                'Generate simulated ECG signals for testing',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Transform.scale(
+                          scale: 0.9,
+                          child: Switch(
+                            value: useMock,
+                            activeColor: const Color(0xFF2c3385),
+                            onChanged: (v) {
+                              if (v) {
+                                _startMockData();
+                              } else {
+                                _mockTimer?.cancel();
+                                setState(() {
+                                  useMock = false;
+                                  statusMessage = 'Mock data stopped';
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback? onPressed,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required bool isEnabled,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isEnabled ? color : Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey.shade300,
+          disabledForegroundColor: Colors.grey.shade500,
+          elevation: isEnabled ? 2 : 0,
+          shadowColor: color.withOpacity(0.3),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -1406,26 +1916,81 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
       valueListenable: waveController.tick,
       builder: (context, _, __) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
           child: Column(
             children: [
               // Summary info
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text('Heart Rate: ${_calculateHeartRate()}'),
-                      Text('Samples: ${waveController.totalSamplesProcessed}'),
-                      Text(
-                        'Success Rate: ${(parser.packetSuccessRate * 100).toStringAsFixed(1)}%',
-                      ),
-                    ],
-                  ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.favorite,
+                          color: Colors.red.shade600,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Heart Rate: ${_calculateHeartRate()}',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.analytics,
+                          color: Colors.blue.shade600,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Samples: ${waveController.totalSamplesProcessed}',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: Colors.green.shade600,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Success Rate: ${(parser.packetSuccessRate * 100).toStringAsFixed(1)}%',
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
+
               // Lead groups
               ...leadGroups.asMap().entries.map((groupEntry) {
                 final groupIndex = groupEntry.key;
@@ -1433,14 +1998,20 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
 
                 return Column(
                   children: [
-                    if (groupIndex > 0) const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    if (groupIndex > 0) const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+
                       child: Text(
                         _getGroupName(groupIndex),
-                        style: const TextStyle(
+                        style: GoogleFonts.montserrat(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+                          color: const Color(0xFF2c3385),
                         ),
                       ),
                     ),
@@ -1450,13 +2021,21 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
                       final colorIndex = groupIndex * 3 + leadIndex;
                       final samples = waveController.getSamples(lead);
 
-                      return ECGChart(
-                        leadName: lead,
-                        samples: samples,
-                        color: colors[colorIndex % colors.length],
-                        height: 100,
-                        showCalibration: groupIndex == 0 && leadIndex == 0,
-                        pmm: pixelsPerMmDefault,
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: ECGChart(
+                          leadName: lead,
+                          samples: samples,
+                          color: colors[colorIndex % colors.length],
+                          height: 100,
+                          showCalibration: groupIndex == 0 && leadIndex == 0,
+                          pmm: pixelsPerMmDefault,
+                        ),
                       );
                     }),
                   ],
@@ -1487,86 +2066,247 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
 
     return Column(
       children: [
-        Card(
-          margin: const EdgeInsets.all(8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Lead:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Column(
+            children: [
+              // Lead selection and stats row
+              Row(
+                children: [
+                  Icon(
+                    Icons.show_chart,
+                    color: const Color(0xFF2c3385),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Lead:',
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF2c3385),
                     ),
-                    const SizedBox(width: 12),
-                    DropdownButton<String>(
-                      value: selectedLead,
-                      items: allLeads
-                          .map(
-                            (l) => DropdownMenuItem(value: l, child: Text(l)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() {
-                        if (v != null) selectedLead = v;
-                      }),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    const Spacer(),
-                    ValueListenableBuilder(
-                      valueListenable: waveController.tick,
-                      builder: (context, _, __) {
-                        final samples = waveController.getSamples(selectedLead);
-                        return Column(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedLead,
+                        style: GoogleFonts.montserrat(
+                          color: const Color(0xFF2c3385),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        items: allLeads
+                            .map(
+                              (l) => DropdownMenuItem(
+                                value: l,
+                                child: Text('Lead $l'),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() {
+                          if (v != null) selectedLead = v;
+                        }),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  ValueListenableBuilder(
+                    valueListenable: waveController.tick,
+                    builder: (context, _, __) {
+                      final samples = waveController.getSamples(selectedLead);
+                      return Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: Colors.blue.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('Samples: ${samples.length}'),
-                            if (samples.isNotEmpty)
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.analytics,
+                                  color: Colors.blue.shade600,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Samples: ${samples.length}',
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (samples.isNotEmpty) ...[
+                              const SizedBox(height: 2),
                               Text(
                                 'Range: ${samples.reduce(min).toStringAsFixed(2)} to ${samples.reduce(max).toStringAsFixed(2)} mV',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 10,
+                                  color: Colors.grey[600],
+                                ),
                               ),
+                            ],
                           ],
-                        );
-                      },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Technical parameters row
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.tune,
+                          color: const Color(0xFF2c3385),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Gain: ${currentGain}x',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.straighten,
+                          color: const Color(0xFF2c3385),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Calibration: ${(calibration * 1000000).toStringAsFixed(1)}µV/count',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.speed,
+                          color: const Color(0xFF2c3385),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Paper Speed: ${mmPerSecond}mm/s',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.aspect_ratio,
+                          color: const Color(0xFF2c3385),
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Scale: ${pixelsPerMmDefault}px/mm',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text('Gain: ${currentGain}x'),
-                    const SizedBox(width: 20),
-                    Text(
-                      'Calibration: ${(calibration * 1000000).toStringAsFixed(1)}µV/count',
-                    ),
-                    const SizedBox(width: 20),
-                    Text('Paper Speed: ${mmPerSecond}mm/s'),
-                    const SizedBox(width: 20),
-                    Text('Scale: ${pixelsPerMmDefault}px/mm'),
-                  ],
+              ),
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: ValueListenableBuilder(
+                valueListenable: waveController.tick,
+                builder: (context, _, __) {
+                  final samples = waveController.getSamples(selectedLead);
+                  return ECGChart(
+                    leadName: selectedLead,
+                    samples: samples,
+                    color: Colors.red.shade700,
+                    height: double.infinity,
+                    showCalibration: true,
+                    pmm: pixelsPerMmDefault,
+                  );
+                },
+              ),
             ),
           ),
         ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: ValueListenableBuilder(
-              valueListenable: waveController.tick,
-              builder: (context, _, __) {
-                final samples = waveController.getSamples(selectedLead);
-                return ECGChart(
-                  leadName: selectedLead,
-                  samples: samples,
-                  color: Colors.red.shade700,
-                  height: double.infinity,
-                  showCalibration: true,
-                  pmm: pixelsPerMmDefault,
-                );
-              },
-            ),
-          ),
-        ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -2222,75 +2962,33 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
     );
   }
 
+  // Add this header method to your ECG monitor class
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Professional ECG Monitor',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        appBarTheme: const AppBarTheme(elevation: 2, centerTitle: true),
-      ),
+      title: 'ECG Monitor',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Row(
-            mainAxisSize: MainAxisSize.min,
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Column(
             children: [
-              Icon(Icons.monitor_heart, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Professional ECG Monitor'),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.devices),
-              onPressed: _showDeviceDialog,
-              tooltip: 'Device Selection',
-            ),
-            IconButton(
-              icon: const Icon(Icons.bluetooth_searching),
-              onPressed: btService.startScan,
-              tooltip: 'Start Bluetooth Scan',
-            ),
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: IconButton(
-                icon: Icon(
-                  isAcquiring ? Icons.pause_circle : Icons.play_circle,
+              _buildHeader(),
+              _buildDeviceSection(),
+              _buildControlPanel(),
+              Expanded(
+                child: TabBarView(
+                  controller: tabController,
+                  children: [
+                    _buildStandardTwelveLeadView(),
+                    _buildSingleLeadView(),
+                    _buildDataAnalysis(),
+                  ],
                 ),
-                onPressed: connectedDevice != null
-                    ? (isAcquiring ? _stopAcquisition : _startAcquisition)
-                    : null,
-                tooltip: isAcquiring ? 'Stop ECG' : 'Start ECG',
-                iconSize: 32,
               ),
-            ),
-          ],
-          bottom: TabBar(
-            controller: tabController,
-            tabs: const [
-              Tab(icon: Icon(Icons.grid_view), text: '12-Lead ECG'),
-              Tab(icon: Icon(Icons.show_chart), text: 'Single Lead'),
-              Tab(icon: Icon(Icons.analytics), text: 'Analysis'),
             ],
           ),
-        ),
-        body: Column(
-          children: [
-            _buildDeviceSection(),
-            _buildControlPanel(),
-            Expanded(
-              child: TabBarView(
-                controller: tabController,
-                children: [
-                  _buildStandardTwelveLeadView(),
-                  _buildSingleLeadView(),
-                  _buildDataAnalysis(),
-                ],
-              ),
-            ),
-          ],
         ),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -2300,7 +2998,7 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
                 heroTag: 'connect',
                 mini: true,
                 onPressed: _showDeviceDialog,
-                backgroundColor: Colors.blue.shade600,
+                backgroundColor: const Color(0xFF2c3385),
                 tooltip: 'Connect to ECG Device',
                 child: const Icon(
                   Icons.bluetooth_searching,
@@ -2324,6 +3022,225 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  // Add this header method to your ECG monitor class
+  Widget _buildHeader() {
+    const Color primaryBlue = Color(0xFF2c3385);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          decoration: BoxDecoration(
+            color: primaryBlue.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              // Main header section
+              Container(
+                height: 90,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.keyboard_backspace,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ECG Monitor',
+                            style: GoogleFonts.raleway(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Real-time cardiac monitoring & analysis',
+                            style: GoogleFonts.raleway(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.devices),
+                          onPressed: _showDeviceDialog,
+                          tooltip: 'Device Selection',
+                          color: Colors.white,
+                          iconSize: 24,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.bluetooth_searching),
+                          onPressed: btService.startScan,
+                          tooltip: 'Start Bluetooth Scan',
+                          color: Colors.white,
+                          iconSize: 24,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(right: 4),
+                          child: IconButton(
+                            icon: Icon(
+                              isAcquiring
+                                  ? Icons.pause_circle
+                                  : Icons.play_circle,
+                              color: Colors.white,
+                            ),
+                            onPressed: connectedDevice != null
+                                ? (isAcquiring
+                                      ? _stopAcquisition
+                                      : _startAcquisition)
+                                : null,
+                            tooltip: isAcquiring ? 'Stop ECG' : 'Start ECG',
+                            iconSize: 32,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Tab bar section
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                ),
+                child: AnimatedBuilder(
+                  animation: tabController,
+                  builder: (context, child) {
+                    return TabBar(
+                      controller: tabController,
+                      indicatorColor: Colors.white,
+                      indicatorWeight: 3,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white70,
+                      labelStyle: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                      unselectedLabelStyle: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                      ),
+                      tabs: [
+                        Tab(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.grid_view,
+                                  size: 20,
+                                  color: tabController.index == 0
+                                      ? Colors.white
+                                      : Colors.white70,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '12-Lead ECG',
+                                  style: TextStyle(
+                                    color: tabController.index == 0
+                                        ? Colors.white
+                                        : Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.show_chart,
+                                  size: 20,
+                                  color: tabController.index == 1
+                                      ? Colors.white
+                                      : Colors.white70,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Single Lead',
+                                  style: TextStyle(
+                                    color: tabController.index == 1
+                                        ? Colors.white
+                                        : Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.analytics,
+                                  size: 20,
+                                  color: tabController.index == 2
+                                      ? Colors.white
+                                      : Colors.white70,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Analysis',
+                                  style: TextStyle(
+                                    color: tabController.index == 2
+                                        ? Colors.white
+                                        : Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
