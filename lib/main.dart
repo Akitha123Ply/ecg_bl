@@ -2320,214 +2320,397 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Real-time statistics
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Real-time Statistics',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (lastECGData != null) ...[
-                        _buildStatRow('Heart Rate', _calculateHeartRate()),
-                        _buildStatRow(
-                          'Sample Rate',
-                          '${waveController.actualSampleRate.toStringAsFixed(1)} Hz',
-                        ),
-                        _buildStatRow(
-                          'Total Samples',
-                          waveController.totalSamplesProcessed.toString(),
-                        ),
-                        _buildStatRow(
-                          'Packet Success Rate',
-                          '${(parser.packetSuccessRate * 100).toStringAsFixed(1)}%',
-                        ),
-                        _buildStatRow('Lead Status', lastECGData!.leadStatus),
-                        _buildStatRow('Battery', lastECGData!.batteryStatus),
-                        _buildStatRow(
-                          'Last Update',
-                          lastECGData!.timestamp.toString().substring(11, 19),
-                        ),
-                        _buildStatRow(
-                          'Display Settings',
-                          'Scale: ${pixelsPerMmDefault}px/mm, Speed: ${mmPerSecond}mm/s',
-                        ),
-                      ] else
-                        const Text('No ECG data received yet'),
-                    ],
+              // Real-time Statistics Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.white, Colors.grey.shade50],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Lead sample counts
-              Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(8),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Lead Sample Counts & Recent Values',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      // Statistics Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2c3385).withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF2c3385).withOpacity(0.1),
+                            width: 1,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: waveController.leadBuffers.entries.map((
-                          entry,
-                        ) {
-                          final leadName = entry.key;
-                          final sampleCount = entry.value.length;
-                          final samples = List<double>.from(entry.value);
-                          final hasData = samples.isNotEmpty;
-
-                          return Chip(
-                            avatar: CircleAvatar(
-                              backgroundColor: sampleCount > 100
-                                  ? Colors.green
-                                  : Colors.orange,
-                              child: Text(
-                                leadName.length > 2
-                                    ? leadName.substring(0, 2)
-                                    : leadName,
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.analytics_rounded,
+                                  color: const Color(0xFF2c3385),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Real-time Statistics',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF2c3385),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            if (lastECGData != null) ...[
+                              _buildStatRow(
+                                'Heart Rate',
+                                _calculateHeartRate(),
+                              ),
+                              _buildStatRow(
+                                'Sample Rate',
+                                '${waveController.actualSampleRate.toStringAsFixed(1)} Hz',
+                              ),
+                              _buildStatRow(
+                                'Total Samples',
+                                waveController.totalSamplesProcessed.toString(),
+                              ),
+                              _buildStatRow(
+                                'Packet Success Rate',
+                                '${(parser.packetSuccessRate * 100).toStringAsFixed(1)}%',
+                              ),
+                              _buildStatRow(
+                                'Lead Status',
+                                lastECGData!.leadStatus,
+                              ),
+                              _buildStatRow(
+                                'Battery',
+                                lastECGData!.batteryStatus,
+                              ),
+                              _buildStatRow(
+                                'Last Update',
+                                lastECGData!.timestamp.toString().substring(
+                                  11,
+                                  19,
                                 ),
                               ),
-                            ),
-                            label: Text(
-                              '$leadName: $sampleCount${hasData ? " (${samples.last.toStringAsFixed(2)}mV)" : ""}',
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                            backgroundColor: sampleCount > 100
-                                ? Colors.green.shade50
-                                : Colors.orange.shade50,
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Signal Quality Assessment
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Signal Quality Assessment',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSignalQualityIndicators(),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Recent values visualization - IMPROVED
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Recent Lead II Values (mV)',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Spacer(),
-                          ElevatedButton.icon(
-                            onPressed: waveController.clear,
-                            icon: const Icon(Icons.clear_all),
-                            label: const Text('Clear All Data'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 80,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: min(
-                            30,
-                            waveController.getSamples('II').length,
-                          ),
-                          itemBuilder: (context, i) {
-                            final samples = waveController.getSamples('II');
-                            if (i >= samples.length) return const SizedBox();
-
-                            final value = samples[samples.length - 1 - i];
-                            final isPositive = value >= 0;
-
-                            return Container(
-                              width: 60,
-                              margin: const EdgeInsets.only(right: 4),
-                              child: Card(
-                                color: isPositive
-                                    ? Colors.green.shade50
-                                    : Colors.red.shade50,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                              _buildStatRow(
+                                'Display Settings',
+                                'Scale: ${pixelsPerMmDefault}px/mm, Speed: ${mmPerSecond}mm/s',
+                              ),
+                            ] else
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Row(
                                   children: [
                                     Icon(
-                                      isPositive
-                                          ? Icons.arrow_upward
-                                          : Icons.arrow_downward,
-                                      size: 16,
-                                      color: isPositive
-                                          ? Colors.green
-                                          : Colors.red,
+                                      Icons.warning_amber_rounded,
+                                      color: Colors.orange.shade600,
+                                      size: 20,
                                     ),
+                                    const SizedBox(width: 8),
                                     Text(
-                                      value.toStringAsFixed(3),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontFamily: 'monospace',
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      'T-${i}',
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        color: Colors.grey.shade600,
+                                      'No ECG data received yet',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.orange.shade700,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            );
-                          },
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Lead Sample Counts Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.biotech_rounded,
+                                  color: const Color(0xFF2c3385),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Lead Sample Counts & Recent Values',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF2c3385),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: waveController.leadBuffers.entries.map((
+                                entry,
+                              ) {
+                                final leadName = entry.key;
+                                final sampleCount = entry.value.length;
+                                final samples = List<double>.from(entry.value);
+                                final hasData = samples.isNotEmpty;
+                                final isHealthy = sampleCount > 100;
+
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isHealthy
+                                          ? Colors.green.shade300
+                                          : Colors.orange.shade300,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: isHealthy
+                                              ? Colors.green.shade100
+                                              : Colors.orange.shade100,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            leadName.length > 2
+                                                ? leadName.substring(0, 2)
+                                                : leadName,
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                              color: isHealthy
+                                                  ? Colors.green.shade700
+                                                  : Colors.orange.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '$leadName: $sampleCount${hasData ? " (${samples.last.toStringAsFixed(2)}mV)" : ""}',
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Signal Quality Assessment Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2c3385).withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFF2c3385).withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.signal_cellular_alt_rounded,
+                                  color: const Color(0xFF2c3385),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Signal Quality Assessment',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF2c3385),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildSignalQualityIndicators(),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Recent Values Section
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.timeline_rounded,
+                                  color: const Color(0xFF2c3385),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Recent Lead II Values (mV)',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF2c3385),
+                                  ),
+                                ),
+                                const Spacer(),
+                                _buildActionButton(
+                                  onPressed: waveController.clear,
+                                  icon: Icons.clear_all_rounded,
+                                  label: 'Clear',
+                                  color: Colors.grey.shade600,
+                                  isEnabled: true,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              height: 100,
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: min(
+                                  30,
+                                  waveController.getSamples('II').length,
+                                ),
+                                itemBuilder: (context, i) {
+                                  final samples = waveController.getSamples(
+                                    'II',
+                                  );
+                                  if (i >= samples.length)
+                                    return const SizedBox();
+
+                                  final value = samples[samples.length - 1 - i];
+                                  final isPositive = value >= 0;
+
+                                  return Container(
+                                    width: 60,
+                                    margin: const EdgeInsets.only(right: 4),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: isPositive
+                                            ? Colors.green.shade50
+                                            : Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: isPositive
+                                              ? Colors.green.shade200
+                                              : Colors.red.shade200,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            isPositive
+                                                ? Icons.arrow_upward_rounded
+                                                : Icons.arrow_downward_rounded,
+                                            size: 16,
+                                            color: isPositive
+                                                ? Colors.green.shade600
+                                                : Colors.red.shade600,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            value.toStringAsFixed(3),
+                                            style: TextStyle(
+                                              fontFamily: 'monospace',
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: isPositive
+                                                  ? Colors.green.shade700
+                                                  : Colors.red.shade700,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'T-${i}',
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -2538,6 +2721,44 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStatRow(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              '$label:',
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF2c3385),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2637,29 +2858,6 @@ class _ECGAppState extends State<ECGApp> with SingleTickerProviderStateMixin {
     final lastMean = lastQuarter.reduce((a, b) => a + b) / lastQuarter.length;
 
     return (lastMean - firstMean).abs();
-  }
-
-  Widget _buildStatRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 14),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   String _calculateHeartRate() {
